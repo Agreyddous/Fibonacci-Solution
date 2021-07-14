@@ -4,7 +4,7 @@ namespace Fibonacci
 {
 	class Program
 	{
-		private static ulong[] _sequency;
+		private static ulong[] _sequence;
 
 		static void Main(string[] args)
 		{
@@ -16,11 +16,11 @@ namespace Fibonacci
 				Console.Write("How many interactions?\n-> ");
 
 				if (!ulong.TryParse(Console.ReadLine(), out ulong interactions))
-					Console.WriteLine("Invalid input");
+					Console.WriteLine("\nInvalid input");
 
 				else
 				{
-					PopulateSequence(interactions);
+					_calculateSequence(interactions);
 
 					Console.Write("\nGo again (y/n)?\n-> ");
 					end = Console.ReadLine().ToLower() != "y";
@@ -32,26 +32,46 @@ namespace Fibonacci
 			} while (!end);
 		}
 
-		public static ulong CalculateFibonacciValue(ulong value)
+		private static bool _calculateFibonacciValue(ulong value)
 		{
-			if (_sequency[value] != 0)
-				value = _sequency[value];
+			bool canCalculate = true;
 
-			else if (value != 0 && value != 1)
-				value = CalculateFibonacciValue(value - 1) + CalculateFibonacciValue(value - 2);
+			if (value != 0 && value != 1)
+				if (ulong.MaxValue - _sequence[value - 1] > _sequence[value - 2])
+					_sequence[value] = _sequence[value - 1] + _sequence[value - 2];
 
-			return value;
+				else
+					canCalculate = false;
+
+			return canCalculate;
 		}
 
-		public static void PopulateSequence(ulong size)
+		private static void _calculateSequence(ulong size)
 		{
-			_sequency = new ulong[size + 1];
+			_sequence = _initializeSequence(size);
 
-			for (ulong index = 0; index <= size; index++)
+			bool canCalculate = true;
+
+			for (ulong index = 0; index <= size && canCalculate; index++)
 			{
-				_sequency[index] = CalculateFibonacciValue(index);
-				Console.WriteLine($"{index} - {_sequency[index]}");
+				canCalculate = _calculateFibonacciValue(index);
+
+				if (canCalculate)
+					Console.WriteLine($"{index} - {_sequence[index]}");
+
+				else
+					Console.WriteLine("Next number is too large to be calculated right now... Might add a solution in the future...");
 			}
+		}
+
+		private static ulong[] _initializeSequence(ulong size)
+		{
+			ulong[] sequence = new ulong[size + 1];
+
+			sequence[0] = 0;
+			sequence[1] = 1;
+
+			return sequence;
 		}
 	}
 }
